@@ -73,10 +73,14 @@ This project includes Firebase configuration files and backend integration. If y
 - Some AI model files and large generated assets may need to be downloaded or placed in the correct folders before running the recognition features.
 - The project contains both mobile app code and supporting scripts for training/validation workflows.
 
+## Authors
+
+This project was developed as a group project by:
+
+- Yasmine Manaa
+- Eya Manaa
+- Maycem Ben Khemis
+
 ## License
 
 This project is currently for educational and development purposes.
-
-## Author
-
-Yasmine Manaa
