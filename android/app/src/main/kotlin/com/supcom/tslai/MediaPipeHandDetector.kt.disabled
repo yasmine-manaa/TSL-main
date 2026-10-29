@@ -1,0 +1,144 @@
+package com.supcom.TSLai
+
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
+import android.graphics.Rect
+import android.graphics.YuvImage
+import android.media.Image
+import androidx.camera.core.ImageProxy
+import com.google.mediapipe.framework.image.BitmapImageBuilder
+import com.google.mediapipe.framework.image.MPImage
+import com.google.mediapipe.tasks.core.BaseOptions
+import com.google.mediapipe.tasks.core.Delegate
+import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarker
+import com.google.mediapipe.tasks.vision.handlandmarker.HandLandmarkerResult
+import com.google.mediapipe.tasks.vision.core.RunningMode
+import java.io.ByteArrayOutputStream
+import java.nio.ByteBuffer
+
+class MediaPipeHandDetector(context: Context) {
+    private var handLandmarker: HandLandmarker? = null
+    
+    init {
+        setupHandLandmarker(context)
+    }
+    
+    private fun setupHandLandmarker(context: Context) {
+        try {
+            val baseOptionsBuilder = BaseOptions.builder()
+                .setDelegate(Delegate.GPU)  // GPU acceleration
+                .setModelAssetPath("hand_landmarker.task")  // Download from MediaPipe
+            
+            val options = HandLandmarker.HandLandmarkerOptions.builder()
+                .setBaseOptions(baseOptionsBuilder.build())
+                .setMinHandDetectionConfidence(0.5f)
+                .setMinHandPresenceConfidence(0.5f)
+                .setMinTrackingConfidence(0.5f)
+                .setRunningMode(RunningMode.IMAGE)
+                .setNumHands(2)
+                .build()
+            
+            handLandmarker = HandLandmarker.createFromOptions(context, options)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    
+    fun detectHands(imageProxy: ImageProxy): List<Map<String, Any>> {
+        val results = mutableListOf<Map<String, Any>>()
+        
+        try {
+            val bitmap = imageProxyToBitmap(imageProxy) ?: return results
+            val mpImage = BitmapImageBuilder(bitmap).build()
+            
+            val result = handLandmarker?.detect(mpImage) ?: return results
+            
+            // Convertir les résultats
+            for (i in 0 until result.landmarks().size) {
+                val landmarks = result.landmarks()[i]
+                val handMap = mutableMapOf<String, Any>()
+                
+                // Extraire les 21 landmarks
+                val landmarkList = mutableListOf<Map<String, Float>>()
+                for (landmark in landmarks) {
+                    landmarkList.add(mapOf(
+                        "x" to landmark.x(),
+                        "y" to landmark.y(),
+                        "z" to to landmark.z()
+                    ))
+                }
+                
+                handMap["landmarks"] = landmarkList
+                handMap["handedness"] = result.handedness()[i][0].categoryName()
+                handMap["score"] = result.handedness()[i][0].score()
+                
+                // Calculer bounding box
+                val bbox = calculateBoundingBox(landmarks)
+                handMap["bbox"] = bbox
+                
+                results.add(handMap)
+            }
+            
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        
+        return results
+    }
+    
+    private fun calculateBoundingBox(landmarks: List<com.google.mediapipe.tasks.components.containers.NormalizedLandmark>): Map<String, Float> {
+        var minX = 1.0f
+        var minY = 1.0f
+        var maxX = 0.0f
+        var maxY = 0.0f
+        
+        for (landmark in landmarks) {
+            minX = minOf(minX, landmark.x())
+            minY = minOf(minY, landmark.y())
+            maxX = maxOf(maxX, landmark.x())
+            maxY = maxOf(maxY, landmark.y())
+        }
+        
+        // Ajouter 20% de padding
+        val paddingX = (maxX - minX) * 0.2f
+        val paddingY = (maxY - minY) * 0.2f
+        
+        return mapOf(
+            "x1" to maxOf(0f, minX - paddingX),
+            "y1" to maxOf(0f, minY - paddingY),
+            "x2" to minOf(1f, maxX + paddingX),
+            "y2" to minOf(1f, maxY + paddingY)
+        )
+    }
+    
+    private fun imageProxyToBitmap(imageProxy: ImageProxy): Bitmap? {
+        return try {
+            val buffer = imageProxy.planes[0].buffer
+            val bytes = ByteArray(buffer.remaining())
+            buffer.get(bytes)
+            
+            val yuvImage = YuvImage(
+                bytes,
+                ImageFormat.NV21,
+                imageProxy.width,
+                imageProxy.height,
+                null
+            )
+            
+            val out = ByteArrayOutputStream()
+            yuvImage.compressToJpeg(Rect(0, 0, imageProxy.width, imageProxy.height), 100, out)
+            val imageBytes = out.toByteArray()
+            
+            BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+    
+    fun close() {
+        handLandmarker?.close()
+    }
+}

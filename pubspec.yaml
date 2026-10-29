@@ -1,0 +1,77 @@
+name: app_p2m
+description: "A new Flutter project."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Icônes
+  cupertino_icons: ^1.0.8
+
+  # BLOC FIREBASE (Versions flexibles pour laisser Flutter choisir la compatibilité)
+  firebase_core: ^3.0.0
+  cloud_firestore: ^5.0.0
+  firebase_auth: ^5.0.0
+  firebase_database: ^11.0.0
+
+  # Stockage et Utilitaires
+  shared_preferences: ^2.2.2
+  html: ^0.15.4
+  crypto: ^3.0.7
+  http: ^1.2.1
+  http_parser: ^4.0.2
+
+  # Multimédia et Caméra
+  image_picker: ^1.0.7
+  camera: ^0.11.4
+  image: ^3.3.0
+  permission_handler: ^12.0.0
+
+  # Machine Learning
+  tflite_flutter: ^0.11.0
+  # hand_detection: ^3.0.2  # Désactivé - utilise tflite_ai_service à la place (pas besoin d'OpenCV)
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Section des Assets
+  assets:
+    - dictionnaire_DB/
+    - dictionnaire_DB/carta-carte/
+    - dictionnaire_DB/dar-maison/
+    - dictionnaire_DB/ommi-maman/
+    - dictionnaire_DB/okhti-soeur/
+    - dictionnaire_DB/septembre-septembre/
+    - dictionnaire_DB/yachtah-dance/
+    - dictionnaire_DB/baladiya-municipalite/
+    - dictionnaire_DB/centre-centre/
+    - dictionnaire_DB/esmi-nom/
+    - dictionnaire_DB/intikhabet-election/
+    - dictionnaire_DB/jadda-grand mere/
+    - dictionnaire_DB/kahwa-cafe/
+    - dictionnaire_DB/khedma-travail/
+    - dictionnaire_DB/moudir-directeur/
+    - dictionnaire_DB/sleh-arme/
+    - dictionnaire_DB/taxi-taxi/
+    - dictionnaire_DB/yaawen-aider/
+    - dictionnaire_DB/yasmaa-entendant/
+    - dictionnaire_DB/ghalet-faux/
+    - dictionnaire_DB/hadaf-objectif/
+    - dictionnaire_DB/iaka-handicap/
+    - dictionnaire_DB/labes-bien/
+    - dictionnaire_DB/sponsor-sponsor/
+    - assets/models/
+    - assets/models/detecteur_main_float32.tflite
+    - assets/models/classifieur_signe_float32.tflite
+    - assets/models/labels.txt

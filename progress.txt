@@ -1,0 +1,39 @@
+PROJET: Flutter TFLite Real-time Detection - Progress Notes
+Date: 2026-05-04
+Session: Checkpoint 7
+
+PROBLÈME PRINCIPAL:
+- Le détecteur TFLite YOLOv8 ne produit pas de détections dans Flutter
+- Ultralytics Python fonctionne (confiance 0.6121) mais TFLite brut échoue (confiance 0.000187)
+- Le preprocessing letterbox est correct, mais il y a une différence fondamentale entre Ultralytics et TFLite brut
+
+TENTATIVES:
+1. Correction du parsing YOLOv8 - ÉCHEC (format [x1,y1,x2,y2,conf,class,?])
+2. Letterbox resize avec padding gris (114,114,114) - ÉCHEC
+3. Package hand_landmarker (MediaPipe) - ÉCHEC compilation (API incorrecte)
+
+SOLUTION ALTERNATIVE PROPOSÉE:
+Utiliser un détecteur de mains fiable (MediaPipe/Google ML Kit) + classifieur TFLite LST
+- MediaPipe: Détection GPU de mains (21 landmarks)
+- TFLite: Classification des signes LST uniquement
+
+FICHIERS CRÉÉS/MODIFIÉS:
+- lib/services/hand_landmark_service.dart (incomplet - erreur compilation)
+- lib/pages/test_hand_landmark_page.dart (incomplet - erreur compilation)
+- lib/services/tflite_ai_service.dart (corrections letterbox)
+- lib/pages/ai_detection_page.dart (corrections UI)
+
+PROCHAINES ÉTAPES:
+1. Choisir: Soit debug hand_landmarker, soit revenir à TFLite avec solution alternative
+2. Si hand_landmarker: Corriger les imports/API
+3. Si TFLite: Trouver pourquoi Ultralytics marche mais pas le brut
+
+MODÈLES:
+- detecteur_main_float32.tflite (384x384, output [1,7,3024])
+- classifieur_signe_float32.tflite (224x224)
+- Labels: dans assets/models/labels.txt
+
+TEST PYTHON CONFIRMÉ:
+- Ultralytics détecte: 1 box, conf=0.6121
+- TFLite brut: max conf=0.000187 (3000x plus faible)
+- Problème: Pas le preprocessing, pas le parsing, mais quelque chose d'interne à Ultralytics

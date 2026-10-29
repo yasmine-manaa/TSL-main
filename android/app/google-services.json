@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "49525407606",
+    "project_id": "tsl-ai",
+    "storage_bucket": "tsl-ai.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:49525407606:android:890ce2d813bc43d6f08457",
+        "android_client_info": {
+          "package_name": "com.supcom.TSLai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcg0ZX37QAgoXp3C6VXrIhRGvAdpUNl9M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
